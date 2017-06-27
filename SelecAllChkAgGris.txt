@@ -1,0 +1,124 @@
+
+vm.lsmrworkorder = true;
+{
+            headerName: "",
+            headerCellTemplate: emsheaderCellRendererFunc,
+            field: "chck",
+            padding: 0,
+            checkboxSelection: true,
+            suppressSorting: true,
+            suppressMenu: true,
+            width: 60
+        },
+
+
+{
+	headerName: "",
+	headerCellTemplate: deleteheaderCellRendererFunc,
+	field: "delete",
+	width: 50,
+	suppressSorting: true,
+	suppressMenu: true,
+	template: '<md-icon md-font-icon="zmdi zmdi-delete" style="color:rgba(0, 0, 0, 0.28);" ng-show="vm.lsmrworkorder"></md-icon>'
+}
+
+
+
+
+
+function deleteheaderCellRendererFunc(params) {
+	var wrappers = document.createElement('div');
+	wrappers.setAttribute('class', 'ag-selection-checkbox deletAll');
+	wrappers.setAttribute('style', 'padding-top: 10px; padding-right: 18px;display: none;');
+
+	var icons2 = document.createElement('i');
+	icons2.setAttribute('class', 'zmdi zmdi-delete');
+	icons2.setAttribute('style', 'display: inline;');
+	icons2.setAttribute('color', 'rgba(0, 0, 0, 0.5)');
+	wrappers.appendChild(icons2);
+
+	wrappers.addEventListener('click', function(e) {
+		console.log("Delete All Sap ID");
+	});
+
+	return wrappers;
+};
+
+var cb, wrapper, icon1, icon2;
+
+function emsheaderCellRendererFunc(params) {
+
+	cb = document.createElement('input');
+	cb.setAttribute('type', 'checkbox');
+	cb.setAttribute('id', 'mycheck');
+	cb.setAttribute('style', 'position: absolute; top: 15px; left: 27px; z-index: 1; opacity: 0;cursor: pointer;');
+	wrapper = document.createElement('div');
+	wrapper.setAttribute('class', 'ag-selection-checkbox');
+	wrapper.setAttribute('style', 'padding-top: 10px; padding-right: 18px;');
+
+	icon1 = document.createElement('i');
+	icon1.setAttribute('class', 'zmdi zmdi-check-square');
+	icon1.setAttribute('style', 'display: none;');
+
+	icon2 = document.createElement('i');
+	icon2.setAttribute('class', 'zmdi zmdi-square-o');
+	icon2.setAttribute('style', 'display: inline;');
+
+	wrapper.appendChild(icon1);
+	wrapper.appendChild(icon2);
+	wrapper.appendChild(cb);
+
+
+	cb.addEventListener('click', function(e) {
+		if ($(this)[0].checked) {
+			vm.gridOptions.api.selectAll();
+			icon1.setAttribute('style', 'display: inline;');
+			icon2.setAttribute('style', 'display: none;');
+			$('.deletAll').css('display', 'block');
+		} else {
+			vm.gridOptions.api.deselectAll();
+			icon1.setAttribute('style', 'display: none;');
+			icon2.setAttribute('style', 'display: inline;');
+			$('.deletAll').css('display', 'none');
+			$scope.$apply(function() {
+				vm.lsmrworkorder = true;
+				vm.selectallworkorder = false;
+				vm.gridOptions.api.refreshView();
+			});
+		}
+	});
+	return wrapper;
+};
+
+function onSelectionChanged(info) {
+	$scope.nodes = vm.gridOptions.api.getSelectedNodes();
+	var nodes = vm.gridOptions.api.getSelectedNodes();
+	var model = vm.gridOptions.api.getModel();
+	var rowCount = model.getRowCount();
+	var data = [];
+	vm.selection = data;
+	nodes.forEach(function(node) {
+		data.push(node.data);
+		if (data.length == rowCount) {
+			icon1.setAttribute('style', 'display: inline;');
+			icon2.setAttribute('style', 'display: none;');
+			$('.deletAll').css('display', 'block');
+		}
+		else if (data.length != rowCount && data.length === 1) {
+			vm.lsmrworkorder = true;
+			vm.selectallworkorder = false;
+			icon1.setAttribute('style', 'display: none;');
+			icon2.setAttribute('style', 'display: inline;');
+			$('.deletAll').css('display', 'none');
+			vm.gridOptions.api.refreshView();
+		}
+		else {
+
+			$scope.$apply(function() {
+				vm.lsmrworkorder = false;
+				$('.deletAll').css('display', 'block');
+				vm.gridOptions.api.refreshView();
+			});
+		}
+	});
+};
